@@ -26,6 +26,14 @@ def escolher_algoritmo():
 
 
 def mostrar_resultado(nome, resultado):
+    garantias = {
+        "menor_numero_de_passos": "garante o menor numero de passos, mas nao o menor custo",
+        "primeiro_caminho_encontrado": "mostra o primeiro caminho encontrado pela DFS simples",
+        "melhor_custo_por_backtracking": "busca o melhor custo usando backtracking",
+        "nao_garante_melhor_caminho": "usa heuristica, mas nao garante o melhor caminho",
+        "melhor_caminho_com_heuristica": "usa custo + heuristica para buscar o melhor caminho"
+    }
+
     print(f"\n=== Resultado: {nome} ===")
 
     if resultado["found"]:
@@ -41,7 +49,8 @@ def mostrar_resultado(nome, resultado):
         print("Revisitas:", resultado["revisitas"])
 
     if "guarantee" in resultado:
-        print("Garantia teorica:", resultado["guarantee"])
+        garantia = garantias.get(resultado["guarantee"], resultado["guarantee"])
+        print("Garantia teorica:", garantia)
 
     print(f"Tempo (ms): {resultado['time_ms']:.3f}")
 

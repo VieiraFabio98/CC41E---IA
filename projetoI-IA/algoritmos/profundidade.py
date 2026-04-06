@@ -1,52 +1,60 @@
 import time
 
-from utils import vizinhos, custo_entrada
-
 
 def busca_profundidade_simples(grid, inicio, destino):
-    n = len(grid)
-    visitado = [[False] * n for _ in range(n)]
+    visitado = []
     caminho_atual = []
     caminho_encontrado = []
     nos_expandidos = 0
     revisitas = 0
-    encontrou = False
 
-    def recursao(pos, custo_ate_aqui):
-        nonlocal caminho_encontrado, nos_expandidos, revisitas, encontrou
+    direcoes = [
+        (-1, 0),  # cima
+        (0, 1),   # direita
+        (1, 0),   # baixo
+        (0, -1)   # esquerda
+    ]
 
-        if encontrou:
-            return None
+    def recursao(posicao_atual, custo_ate_aqui):
+        nonlocal caminho_encontrado, nos_expandidos, revisitas
 
-        l, c = pos
-        if visitado[l][c]:
+        linha = posicao_atual[0]
+        coluna = posicao_atual[1]
+
+        if posicao_atual in visitado:
             revisitas += 1
             return None
 
-        visitado[l][c] = True
-        caminho_atual.append(pos)
+        visitado.append(posicao_atual)
+        caminho_atual.append(posicao_atual)
         nos_expandidos += 1
 
-        if pos == destino:
+        if posicao_atual == destino:
             caminho_encontrado = caminho_atual.copy()
-            encontrou = True
             caminho_atual.pop()
-            visitado[l][c] = False
+            visitado.pop()
             return custo_ate_aqui
 
-        for prox in vizinhos(grid, pos):
-            pl, pc = prox
-            if not visitado[pl][pc]:
-                resultado = recursao(prox, custo_ate_aqui + custo_entrada(grid, prox))
-                if resultado is not None:
-                    caminho_atual.pop()
-                    visitado[l][c] = False
-                    return resultado
-            else:
-                revisitas += 1
+        for direcao in direcoes:
+            nova_linha = linha + direcao[0]
+            nova_coluna = coluna + direcao[1]
+
+            if 0 <= nova_linha < len(grid) and 0 <= nova_coluna < len(grid[0]):
+                if grid[nova_linha][nova_coluna] is not None:
+                    nova_posicao = (nova_linha, nova_coluna)
+
+                    if nova_posicao not in visitado:
+                        novo_custo = custo_ate_aqui + grid[nova_linha][nova_coluna]
+                        resultado = recursao(nova_posicao, novo_custo)
+                        if resultado is not None:
+                            caminho_atual.pop()
+                            visitado.pop()
+                            return resultado
+                    else:
+                        revisitas += 1
 
         caminho_atual.pop()
-        visitado[l][c] = False
+        visitado.pop()
         return None
 
     t0 = time.perf_counter()
@@ -65,48 +73,62 @@ def busca_profundidade_simples(grid, inicio, destino):
 
 
 def busca_profundidade_melhor(grid, inicio, destino):
-    n = len(grid)
-    visitado = [[False] * n for _ in range(n)]
-
+    visitado = []
+    caminho_atual = []
     melhor_caminho = []
     melhor_custo = float("inf")
     nos_expandidos = 0
     revisitas = 0
-    caminho_atual = []
 
-    def recursao(pos, custo_ate_aqui):
-        nonlocal melhor_custo, melhor_caminho, nos_expandidos, revisitas
+    direcoes = [
+        (-1, 0),  # cima
+        (0, 1),   # direita
+        (1, 0),   # baixo
+        (0, -1)   # esquerda
+    ]
 
-        l, c = pos
+    def recursao(posicao_atual, custo_ate_aqui):
+        nonlocal melhor_caminho, melhor_custo, nos_expandidos, revisitas
 
-        if visitado[l][c]:
+        linha = posicao_atual[0]
+        coluna = posicao_atual[1]
+
+        if posicao_atual in visitado:
             revisitas += 1
             return
 
-        visitado[l][c] = True
-        caminho_atual.append(pos)
+        visitado.append(posicao_atual)
+        caminho_atual.append(posicao_atual)
         nos_expandidos += 1
 
         if custo_ate_aqui >= melhor_custo:
             caminho_atual.pop()
-            visitado[l][c] = False
+            visitado.pop()
             return
 
-        if pos == destino:
+        if posicao_atual == destino:
             melhor_custo = custo_ate_aqui
             melhor_caminho = caminho_atual.copy()
-        else:
-            for prox in vizinhos(grid, pos):
-                pl, pc = prox
+            caminho_atual.pop()
+            visitado.pop()
+            return
 
-                if not visitado[pl][pc]:
-                    prox_custo = custo_ate_aqui + custo_entrada(grid, prox)
-                    recursao(prox, prox_custo)
-                else:
-                    revisitas += 1
+        for direcao in direcoes:
+            nova_linha = linha + direcao[0]
+            nova_coluna = coluna + direcao[1]
+
+            if 0 <= nova_linha < len(grid) and 0 <= nova_coluna < len(grid[0]):
+                if grid[nova_linha][nova_coluna] is not None:
+                    nova_posicao = (nova_linha, nova_coluna)
+
+                    if nova_posicao not in visitado:
+                        novo_custo = custo_ate_aqui + grid[nova_linha][nova_coluna]
+                        recursao(nova_posicao, novo_custo)
+                    else:
+                        revisitas += 1
 
         caminho_atual.pop()
-        visitado[l][c] = False
+        visitado.pop()
 
     t0 = time.perf_counter()
     recursao(inicio, 0)

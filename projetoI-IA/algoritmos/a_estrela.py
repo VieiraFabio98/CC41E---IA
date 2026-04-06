@@ -2,73 +2,88 @@ import heapq
 import itertools
 import time
 
-from utils import (
-    manhattan,
-    create_cost,
-    vizinhos,
-    reconstruct_path
-)
-
 
 def busca_a_estrela(grid, inicio, destino):
     start_time = time.perf_counter()
+
+    fila_prioridade = []
+    pais = {}
+    custo_ate_agora = {inicio: 0}
+    fechados = []
+    ordem_insercao = itertools.count()
     expanded = 0
 
-    h = lambda node: manhattan(node, destino)
-    cost = create_cost(grid)
+    direcoes = [
+        (-1, 0),  # cima
+        (0, 1),   # direita
+        (1, 0),   # baixo
+        (0, -1)   # esquerda
+    ]
 
-    came_from = {}
-    g_score = {inicio: 0}
-    closed = set()
-    push_count = itertools.count()
+    heuristica_inicial = abs(inicio[0] - destino[0]) + abs(inicio[1] - destino[1])
+    heapq.heappush(
+        fila_prioridade,
+        (heuristica_inicial, heuristica_inicial, next(ordem_insercao), 0, inicio)
+    )
 
-    open_heap = [
-        (h(inicio), h(inicio), next(push_count), 0, inicio)
-    ]  # (f, h, _, g, node)
+    while fila_prioridade:
+        _, _, _, custo_atual, posicao_atual = heapq.heappop(fila_prioridade)
 
-    while open_heap:
-        _, _, _, g_current, current = heapq.heappop(open_heap)
-
-        if g_current != g_score.get(current):
+        if custo_atual != custo_ate_agora.get(posicao_atual):
             continue
 
-        if current in closed:
+        if posicao_atual in fechados:
             continue
 
-        closed.add(current)
+        fechados.append(posicao_atual)
         expanded += 1
 
-        if current == destino:
+        if posicao_atual == destino:
+            caminho = [destino]
+            atual = destino
+
+            while atual in pais:
+                atual = pais[atual]
+                caminho.append(atual)
+
+            caminho.reverse()
+
             return {
                 "found": True,
-                "path": reconstruct_path(came_from, current),
-                "cost": g_current,
+                "path": caminho,
+                "cost": custo_atual,
                 "expanded": expanded,
                 "time_ms": (time.perf_counter() - start_time) * 1000.0,
                 "guarantee": "melhor_caminho_com_heuristica"
             }
 
-        for neighbor in vizinhos(grid, current):
-            if neighbor in closed:
-                continue
+        linha = posicao_atual[0]
+        coluna = posicao_atual[1]
 
-            tentative_g = g_current + cost(current, neighbor)
+        for direcao in direcoes:
+            nova_linha = linha + direcao[0]
+            nova_coluna = coluna + direcao[1]
 
-            if tentative_g < g_score.get(neighbor, float("inf")):
-                came_from[neighbor] = current
-                g_score[neighbor] = tentative_g
-                h_neighbor = h(neighbor)
+            if 0 <= nova_linha < len(grid) and 0 <= nova_coluna < len(grid[0]):
+                if grid[nova_linha][nova_coluna] is not None:
+                    nova_posicao = (nova_linha, nova_coluna)
 
-                heapq.heappush(
-                    open_heap,
-                    (
-                        tentative_g + h_neighbor,
-                        h_neighbor,
-                        next(push_count),
-                        tentative_g,
-                        neighbor
-                    ),
-                )
+                    if nova_posicao in fechados:
+                        continue
+
+                    novo_custo = custo_atual + grid[nova_linha][nova_coluna]
+
+                    if novo_custo < custo_ate_agora.get(nova_posicao, float("inf")):
+                        custo_ate_agora[nova_posicao] = novo_custo
+                        pais[nova_posicao] = posicao_atual
+
+                        heuristica = abs(nova_linha - destino[0]) + abs(nova_coluna - destino[1])
+                        prioridade = novo_custo + heuristica
+
+                        heapq.heappush(
+                            fila_prioridade,
+                            (prioridade, heuristica, next(ordem_insercao), novo_custo, nova_posicao)
+                        )
 
     return {
         "found": False,
