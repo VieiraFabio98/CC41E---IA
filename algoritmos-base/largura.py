@@ -29,6 +29,17 @@ def imprimirLabirinto(labirinto, inicio, saida):
             for j, c in enumerate(linha)
         ))
 
+def reconstruirCaminho(pais, saida):
+    caminho = []
+    atual = saida
+
+    while atual is not None:
+        caminho.append(atual)
+        atual = pais[atual]
+
+    caminho.reverse()
+    return caminho
+
 def BFS(labirinto, inicio, saida):
     direcoes = [
         #L  C
@@ -39,9 +50,11 @@ def BFS(labirinto, inicio, saida):
     ]
     fila = deque()
     visitados = []
+    pais = {}
 
     fila.append(inicio)
     visitados.append(inicio)
+    pais[inicio] = None
 
     while fila:
         posicaoAtual = fila.popleft()
@@ -53,18 +66,23 @@ def BFS(labirinto, inicio, saida):
             if (0 <= novaLinha < len(labirinto)) and (0 <= novaColuna < len(labirinto[0])):
                 if labirinto[novaLinha][novaColuna] != -1:
                     if (novaLinha, novaColuna) not in visitados:
+                        pais[(novaLinha, novaColuna)] = posicaoAtual
+                        visitados.append((novaLinha, novaColuna))
                         if (novaLinha, novaColuna) == saida:
-                            visitados.append((novaLinha, novaColuna))
+                            caminho = reconstruirCaminho(pais, saida)
                             return {
                                 "solution": True,
-                                "visitados": visitados
+                                "visitados": visitados,
+                                "caminho": caminho,
+                                "custo": len(caminho) - 1
                             }
                         fila.append((novaLinha, novaColuna))
-                        visitados.append((novaLinha, novaColuna))
 
     return {
         "solution": False,
-        "visitados": visitados
+        "visitados": visitados,
+        "caminho": [],
+        "custo": 0
     }
 
 
@@ -81,5 +99,9 @@ saida = gerarSaidaLabirinto(labirinto, inicio)
 imprimirLabirinto(labirinto, inicio, saida)
 
 resultado = BFS(labirinto, inicio, saida)
-print(resultado["solution"])
-print(resultado["visitados"])
+print(f"Solução encontrada: {resultado['solution']}")
+print(f"Nós visitados: {resultado['visitados']}")
+
+if resultado["solution"]:
+    print(f"Caminho: {resultado['caminho']}")
+    print(f"Custo (movimentos): {resultado['custo']}")
