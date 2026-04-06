@@ -13,7 +13,6 @@ SIMBOLOS = {
 
 
 def criar_mapa(n, qtd_paredes, *, print_grid=False):
-    """Cria um mapa n x n com grama, lama e paredes."""
     grid = [random.choices([GRAMA, LAMA], weights=[3, 1], k=n) for _ in range(n)]
 
     qtd_paredes = max(0, min(qtd_paredes, n * n - 2))
@@ -53,7 +52,6 @@ def pode_andar(grid, pos):
 
 
 def vizinhos(grid, pos):
-    """Retorna os vizinhos validos na ordem cima, direita, baixo e esquerda."""
     l, c = pos
     candidatos = [
         (l - 1, c),
@@ -80,7 +78,6 @@ def custo_entrada(grid, pos):
 
 
 def create_cost(grid):
-    """Retorna uma funcao para consultar o custo de entrada em cada celula."""
     return lambda _a, b: grid[b[0]][b[1]]
 
 
@@ -103,7 +100,6 @@ def calcular_custo_caminho(grid, caminho):
 
 
 def imprimir_mapa(grid, inicio, destino, caminho=None):
-    """Mostra o mapa no terminal."""
     caminho_set = set(caminho) if caminho else set()
 
     print()

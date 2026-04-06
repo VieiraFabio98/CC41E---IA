@@ -1,5 +1,5 @@
 from utils import criar_mapa, imprimir_mapa, dentro, pode_andar
-from visualizacao import desenhar_tres_mapas, desenhar_comparacao_profundidade
+from visualizacao import desenhar_tres_mapas, desenhar_comparacao_profundidade, desenhar_comparacao_todos
 from algoritmos.largura import busca_largura
 from algoritmos.profundidade import busca_profundidade
 from algoritmos.gulosa import busca_gulosa
@@ -22,6 +22,7 @@ def escolher_algoritmo():
     print("2 - Busca em Profundidade")
     print("3 - Busca Gulosa")
     print("4 - Busca A*")
+    print("5 - Comparar Todos")
     return input("Escolha uma opcao: ").strip()
 
 
@@ -169,6 +170,32 @@ def main():
             desenhar_tres_mapas(grid, inicio, destino, resultado["path"], nome_algoritmo=nome)
         else:
             desenhar_tres_mapas(grid, inicio, destino, None, nome_algoritmo=nome)
+
+    elif opcao == "5":
+        resultado_largura = busca_largura(grid, inicio, destino)
+        resultados_profundidade = busca_profundidade(grid, inicio, destino)
+        resultado_dfs_simples = resultados_profundidade["simples"]
+        resultado_dfs_melhor = resultados_profundidade["melhor"]
+        resultado_gulosa = busca_gulosa(grid, inicio, destino)
+        resultado_a_estrela = busca_a_estrela(grid, inicio, destino)
+
+        print("\n=== COMPARACAO GERAL ===")
+        mostrar_resultado("Busca em Largura", resultado_largura)
+        mostrar_resultado("Busca em Profundidade - DFS Simples", resultado_dfs_simples)
+        mostrar_resultado("Busca em Profundidade - DFS com Backtracking", resultado_dfs_melhor)
+        mostrar_resultado("Busca Gulosa", resultado_gulosa)
+        mostrar_resultado("Busca A*", resultado_a_estrela)
+
+        desenhar_comparacao_todos(
+            grid,
+            inicio,
+            destino,
+            resultado_largura["path"] if resultado_largura["found"] else None,
+            resultado_dfs_simples["path"] if resultado_dfs_simples["found"] else None,
+            resultado_dfs_melhor["path"] if resultado_dfs_melhor["found"] else None,
+            resultado_gulosa["path"] if resultado_gulosa["found"] else None,
+            resultado_a_estrela["path"] if resultado_a_estrela["found"] else None
+        )
 
     else:
         print("Opcao invalida.")

@@ -110,3 +110,49 @@ def desenhar_comparacao_profundidade(grid, inicio, destino, caminho_simples=None
 
     plt.tight_layout()
     plt.show()
+
+
+def desenhar_comparacao_todos(
+    grid,
+    inicio,
+    destino,
+    caminho_largura=None,
+    caminho_dfs_simples=None,
+    caminho_dfs_melhor=None,
+    caminho_gulosa=None,
+    caminho_a_estrela=None
+):
+    n = len(grid)
+
+    map1 = _create_visual(grid, inicio, destino, None)
+    map1[inicio[0]][inicio[1]] = 0
+    map1[destino[0]][destino[1]] = 0
+
+    map2 = _create_visual(grid, inicio, destino, caminho_largura)
+    map3 = _create_visual(grid, inicio, destino, caminho_dfs_simples)
+    map4 = _create_visual(grid, inicio, destino, caminho_dfs_melhor)
+    map5 = _create_visual(grid, inicio, destino, caminho_gulosa)
+    map6 = _create_visual(grid, inicio, destino, caminho_a_estrela)
+
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+    axes = axes.flatten()
+
+    titles = [
+        "Mapa Inicial",
+        "Busca em Largura",
+        "DFS Simples",
+        "DFS com Backtracking",
+        "Busca Gulosa",
+        "Busca A*"
+    ]
+    maps = [map1, map2, map3, map4, map5, map6]
+
+    for ax, mapa, title in zip(axes, maps, titles):
+        ax.imshow(mapa, cmap=_create_cmap(), vmin=0, vmax=5)
+        ax.set_title(title)
+        ax.set_xticks(range(n))
+        ax.set_yticks(range(n))
+        ax.grid(True)
+
+    plt.tight_layout()
+    plt.show()
