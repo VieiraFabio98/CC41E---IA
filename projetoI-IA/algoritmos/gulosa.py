@@ -9,6 +9,10 @@ def busca_gulosa(grid, inicio, destino):
     pais = {}
     custo_ate_agora = {inicio: 0}
     expanded = 0
+    nos_expandidos = []
+    revisitas = 0
+    nos_revisitados = []
+    passos_animacao = []
 
     direcoes = [
         (-1, 0),  # cima
@@ -24,9 +28,14 @@ def busca_gulosa(grid, inicio, destino):
         _, custo_atual, posicao_atual = heapq.heappop(fila_prioridade)
 
         if custo_atual != custo_ate_agora.get(posicao_atual):
+            revisitas += 1
+            nos_revisitados.append(posicao_atual)
+            passos_animacao.append(("revisit", posicao_atual))
             continue
 
         expanded += 1
+        nos_expandidos.append(posicao_atual)
+        passos_animacao.append(("expand", posicao_atual))
 
         if posicao_atual == destino:
             caminho = [destino]
@@ -43,6 +52,10 @@ def busca_gulosa(grid, inicio, destino):
                 "path": caminho,
                 "cost": custo_atual,
                 "expanded": expanded,
+                "expanded_nodes": nos_expandidos,
+                "revisitas": revisitas,
+                "revisited_nodes": nos_revisitados,
+                "passos_animacao": passos_animacao,
                 "time_ms": (time.perf_counter() - start_time) * 1000.0,
                 "guarantee": "nao_garante_melhor_caminho"
             }
@@ -65,12 +78,20 @@ def busca_gulosa(grid, inicio, destino):
 
                         heuristica = abs(nova_linha - destino[0]) + abs(nova_coluna - destino[1])
                         heapq.heappush(fila_prioridade, (heuristica, novo_custo, nova_posicao))
+                    else:
+                        revisitas += 1
+                        nos_revisitados.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
 
     return {
         "found": False,
         "path": [],
         "cost": 0,
         "expanded": expanded,
+        "expanded_nodes": nos_expandidos,
+        "revisitas": revisitas,
+        "revisited_nodes": nos_revisitados,
+        "passos_animacao": passos_animacao,
         "time_ms": (time.perf_counter() - start_time) * 1000.0,
         "guarantee": "nao_garante_melhor_caminho"
     }

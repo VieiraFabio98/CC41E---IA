@@ -6,7 +6,10 @@ def busca_profundidade_simples(grid, inicio, destino):
     caminho_atual = []
     caminho_encontrado = []
     nos_expandidos = 0
+    lista_nos_expandidos = []
+    lista_revisitas = []
     revisitas = 0
+    passos_animacao = []
 
     direcoes = [
         (-1, 0),  # cima
@@ -23,11 +26,15 @@ def busca_profundidade_simples(grid, inicio, destino):
 
         if posicao_atual in visitado:
             revisitas += 1
+            lista_revisitas.append(posicao_atual)
+            passos_animacao.append(("revisit", posicao_atual))
             return None
 
         visitado.append(posicao_atual)
         caminho_atual.append(posicao_atual)
         nos_expandidos += 1
+        lista_nos_expandidos.append(posicao_atual)
+        passos_animacao.append(("expand", posicao_atual))
 
         if posicao_atual == destino:
             caminho_encontrado = caminho_atual.copy()
@@ -52,6 +59,8 @@ def busca_profundidade_simples(grid, inicio, destino):
                             return resultado
                     else:
                         revisitas += 1
+                        lista_revisitas.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
 
         caminho_atual.pop()
         visitado.pop()
@@ -66,7 +75,10 @@ def busca_profundidade_simples(grid, inicio, destino):
         "path": caminho_encontrado,
         "cost": custo if custo is not None else 0,
         "expanded": nos_expandidos,
+        "expanded_nodes": lista_nos_expandidos,
         "revisitas": revisitas,
+        "revisited_nodes": lista_revisitas,
+        "passos_animacao": passos_animacao,
         "time_ms": (t1 - t0) * 1000,
         "guarantee": "primeiro_caminho_encontrado"
     }
@@ -78,7 +90,10 @@ def busca_profundidade_melhor(grid, inicio, destino):
     melhor_caminho = []
     melhor_custo = float("inf")
     nos_expandidos = 0
+    lista_nos_expandidos = []
+    lista_revisitas = []
     revisitas = 0
+    passos_animacao = []
 
     direcoes = [
         (-1, 0),  # cima
@@ -95,11 +110,15 @@ def busca_profundidade_melhor(grid, inicio, destino):
 
         if posicao_atual in visitado:
             revisitas += 1
+            lista_revisitas.append(posicao_atual)
+            passos_animacao.append(("revisit", posicao_atual))
             return
 
         visitado.append(posicao_atual)
         caminho_atual.append(posicao_atual)
         nos_expandidos += 1
+        lista_nos_expandidos.append(posicao_atual)
+        passos_animacao.append(("expand", posicao_atual))
 
         if custo_ate_aqui >= melhor_custo:
             caminho_atual.pop()
@@ -126,6 +145,8 @@ def busca_profundidade_melhor(grid, inicio, destino):
                         recursao(nova_posicao, novo_custo)
                     else:
                         revisitas += 1
+                        lista_revisitas.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
 
         caminho_atual.pop()
         visitado.pop()
@@ -139,7 +160,10 @@ def busca_profundidade_melhor(grid, inicio, destino):
         "path": melhor_caminho,
         "cost": melhor_custo if melhor_caminho else 0,
         "expanded": nos_expandidos,
+        "expanded_nodes": lista_nos_expandidos,
         "revisitas": revisitas,
+        "revisited_nodes": lista_revisitas,
+        "passos_animacao": passos_animacao,
         "time_ms": (t1 - t0) * 1000,
         "guarantee": "melhor_custo_por_backtracking"
     }

@@ -1,5 +1,12 @@
 from utils import criar_mapa, imprimir_mapa, dentro, pode_andar
-from visualizacao import desenhar_tres_mapas, desenhar_comparacao_profundidade, desenhar_comparacao_todos
+from visualizacao import (
+    animar_comparacao_profundidade,
+    animar_comparacao_todos,
+    animar_resultado_individual,
+    desenhar_tres_mapas,
+    desenhar_comparacao_profundidade,
+    desenhar_comparacao_todos,
+)
 from algoritmos.largura import busca_largura
 from algoritmos.profundidade import busca_profundidade
 from algoritmos.gulosa import busca_gulosa
@@ -120,9 +127,10 @@ def main():
         if resultado["found"]:
             print("\nMapa com caminho:")
             imprimir_mapa(grid, inicio, destino, resultado["path"])
-            desenhar_tres_mapas(grid, inicio, destino, resultado["path"], nome_algoritmo=nome)
         else:
-            desenhar_tres_mapas(grid, inicio, destino, None, nome_algoritmo=nome)
+            print("\nNenhum caminho para desenhar.")
+        animar_resultado_individual(grid, inicio, destino, resultado, nome_algoritmo=nome)
+        desenhar_tres_mapas(grid, inicio, destino, resultado["path"] if resultado["found"] else None, nome_algoritmo=nome)
 
     elif opcao == "2":
         resultados = busca_profundidade(grid, inicio, destino)
@@ -139,6 +147,7 @@ def main():
             print("\nMapa DFS com Backtracking:")
             imprimir_mapa(grid, inicio, destino, melhor["path"])
 
+        animar_comparacao_profundidade(grid, inicio, destino, simples, melhor)
         desenhar_comparacao_profundidade(
             grid,
             inicio,
@@ -155,9 +164,10 @@ def main():
         if resultado["found"]:
             print("\nMapa com caminho:")
             imprimir_mapa(grid, inicio, destino, resultado["path"])
-            desenhar_tres_mapas(grid, inicio, destino, resultado["path"], nome_algoritmo=nome)
         else:
-            desenhar_tres_mapas(grid, inicio, destino, None, nome_algoritmo=nome)
+            print("\nNenhum caminho para desenhar.")
+        animar_resultado_individual(grid, inicio, destino, resultado, nome_algoritmo=nome)
+        desenhar_tres_mapas(grid, inicio, destino, resultado["path"] if resultado["found"] else None, nome_algoritmo=nome)
 
     elif opcao == "4":
         nome = "Busca A*"
@@ -167,9 +177,10 @@ def main():
         if resultado["found"]:
             print("\nMapa com caminho:")
             imprimir_mapa(grid, inicio, destino, resultado["path"])
-            desenhar_tres_mapas(grid, inicio, destino, resultado["path"], nome_algoritmo=nome)
         else:
-            desenhar_tres_mapas(grid, inicio, destino, None, nome_algoritmo=nome)
+            print("\nNenhum caminho para desenhar.")
+        animar_resultado_individual(grid, inicio, destino, resultado, nome_algoritmo=nome)
+        desenhar_tres_mapas(grid, inicio, destino, resultado["path"] if resultado["found"] else None, nome_algoritmo=nome)
 
     elif opcao == "5":
         resultado_largura = busca_largura(grid, inicio, destino)
@@ -186,6 +197,16 @@ def main():
         mostrar_resultado("Busca Gulosa", resultado_gulosa)
         mostrar_resultado("Busca A*", resultado_a_estrela)
 
+        animar_comparacao_todos(
+            grid,
+            inicio,
+            destino,
+            resultado_largura,
+            resultado_dfs_simples,
+            resultado_dfs_melhor,
+            resultado_gulosa,
+            resultado_a_estrela
+        )
         desenhar_comparacao_todos(
             grid,
             inicio,

@@ -12,6 +12,10 @@ def busca_a_estrela(grid, inicio, destino):
     fechados = []
     ordem_insercao = itertools.count()
     expanded = 0
+    nos_expandidos = []
+    revisitas = 0
+    nos_revisitados = []
+    passos_animacao = []
 
     direcoes = [
         (-1, 0),  # cima
@@ -30,13 +34,21 @@ def busca_a_estrela(grid, inicio, destino):
         _, _, _, custo_atual, posicao_atual = heapq.heappop(fila_prioridade)
 
         if custo_atual != custo_ate_agora.get(posicao_atual):
+            revisitas += 1
+            nos_revisitados.append(posicao_atual)
+            passos_animacao.append(("revisit", posicao_atual))
             continue
 
         if posicao_atual in fechados:
+            revisitas += 1
+            nos_revisitados.append(posicao_atual)
+            passos_animacao.append(("revisit", posicao_atual))
             continue
 
         fechados.append(posicao_atual)
         expanded += 1
+        nos_expandidos.append(posicao_atual)
+        passos_animacao.append(("expand", posicao_atual))
 
         if posicao_atual == destino:
             caminho = [destino]
@@ -53,6 +65,10 @@ def busca_a_estrela(grid, inicio, destino):
                 "path": caminho,
                 "cost": custo_atual,
                 "expanded": expanded,
+                "expanded_nodes": nos_expandidos,
+                "revisitas": revisitas,
+                "revisited_nodes": nos_revisitados,
+                "passos_animacao": passos_animacao,
                 "time_ms": (time.perf_counter() - start_time) * 1000.0,
                 "guarantee": "melhor_caminho_com_heuristica"
             }
@@ -69,6 +85,9 @@ def busca_a_estrela(grid, inicio, destino):
                     nova_posicao = (nova_linha, nova_coluna)
 
                     if nova_posicao in fechados:
+                        revisitas += 1
+                        nos_revisitados.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
                         continue
 
                     novo_custo = custo_atual + grid[nova_linha][nova_coluna]
@@ -84,12 +103,20 @@ def busca_a_estrela(grid, inicio, destino):
                             fila_prioridade,
                             (prioridade, heuristica, next(ordem_insercao), novo_custo, nova_posicao)
                         )
+                    else:
+                        revisitas += 1
+                        nos_revisitados.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
 
     return {
         "found": False,
         "path": [],
         "cost": 0,
         "expanded": expanded,
+        "expanded_nodes": nos_expandidos,
+        "revisitas": revisitas,
+        "revisited_nodes": nos_revisitados,
+        "passos_animacao": passos_animacao,
         "time_ms": (time.perf_counter() - start_time) * 1000.0,
         "guarantee": "melhor_caminho_com_heuristica"
     }

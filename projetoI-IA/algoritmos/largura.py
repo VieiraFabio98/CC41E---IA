@@ -16,6 +16,10 @@ def busca_largura(grid, inicio, destino):
     visitados = []
     pais = {}
     expanded = 0
+    nos_expandidos = []
+    revisitas = 0
+    nos_revisitados = []
+    passos_animacao = []
 
     fila.append(inicio)
     visitados.append(inicio)
@@ -23,6 +27,8 @@ def busca_largura(grid, inicio, destino):
     while fila:
         posicao_atual = fila.popleft()
         expanded += 1
+        nos_expandidos.append(posicao_atual)
+        passos_animacao.append(("expand", posicao_atual))
 
         if posicao_atual == destino:
             caminho = [destino]
@@ -44,6 +50,10 @@ def busca_largura(grid, inicio, destino):
                 "path": caminho,
                 "cost": custo_total,
                 "expanded": expanded,
+                "expanded_nodes": nos_expandidos,
+                "revisitas": revisitas,
+                "revisited_nodes": nos_revisitados,
+                "passos_animacao": passos_animacao,
                 "time_ms": (time.perf_counter() - start_time) * 1000.0,
                 "guarantee": "menor_numero_de_passos"
             }
@@ -60,12 +70,20 @@ def busca_largura(grid, inicio, destino):
                         fila.append(nova_posicao)
                         visitados.append(nova_posicao)
                         pais[nova_posicao] = posicao_atual
+                    else:
+                        revisitas += 1
+                        nos_revisitados.append(nova_posicao)
+                        passos_animacao.append(("revisit", nova_posicao))
 
     return {
         "found": False,
         "path": [],
         "cost": 0,
         "expanded": expanded,
+        "expanded_nodes": nos_expandidos,
+        "revisitas": revisitas,
+        "revisited_nodes": nos_revisitados,
+        "passos_animacao": passos_animacao,
         "time_ms": (time.perf_counter() - start_time) * 1000.0,
         "guarantee": "menor_numero_de_passos"
     }
